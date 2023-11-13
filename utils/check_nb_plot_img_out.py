@@ -7,10 +7,7 @@ import re
 
 def get_error_message(traceback_str):
     lines = traceback_str.split('\n')
-    for line in lines:
-        if 'Error:' in line:
-            return line
-    return None  # Return None if no error message is found
+    return next((line for line in lines if 'Error:' in line), None)
 
 
 nb = nbformat.v4.new_notebook()

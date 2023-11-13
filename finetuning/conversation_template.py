@@ -71,9 +71,7 @@ def json_to_code_result_tok_temp(json_file_name: str = "425.json") -> str:
     with open(file_rel_path, "r") as json_file:
         msg = json.load(json_file)
 
-    full_str = msg_to_code_result_tok_temp(msg)
-
-    return full_str
+    return msg_to_code_result_tok_temp(msg)
 
 
 if __name__ == "__main__":

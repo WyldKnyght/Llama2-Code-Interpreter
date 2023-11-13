@@ -95,8 +95,7 @@ class StreamingLlamaCodeInterpreter(LlamaCodeInterpreter):
 
 
 def change_markdown_image(text: str):
-    modified_text = re.sub(r"!\[(.*?)\]\(\'(.*?)\'\)", r"![\1](/file=\2)", text)
-    return modified_text
+    return re.sub(r"!\[(.*?)\]\(\'(.*?)\'\)", r"![\1](/file=\2)", text)
 
 
 def gradio_launch(model_path: str, load_in_4bit: bool = True, MAX_TRY: int = 5):
