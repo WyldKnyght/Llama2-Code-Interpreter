@@ -78,7 +78,7 @@ def create_peft_config(model):
     model = prepare_model_for_int8_training(model)
     model = get_peft_model(model, peft_config)
     model.print_trainable_parameters()
-    print(f"Using Peft")
+    print("Using Peft")
     return model, peft_config
 
 
@@ -112,22 +112,22 @@ def find_all_sublist_end(main_list, sublist):
     """Find all the ending indices of a sublist in a main list."""
     sublist_len = len(sublist)
     main_list = main_list.tolist()
-    indices = []
-    for index in (i for i, e in enumerate(main_list) if e == sublist[0]):
-        if main_list[index : index + sublist_len] == sublist:
-            indices.append(index + sublist_len)
-    return indices
+    return [
+        index + sublist_len
+        for index in (i for i, e in enumerate(main_list) if e == sublist[0])
+        if main_list[index : index + sublist_len] == sublist
+    ]
 
 
 def find_all_sublist_start(main_list, sublist):
     """Find all the starting indices of a sublist in a main list."""
     sublist_len = len(sublist)
     main_list = main_list.tolist()
-    indices = []
-    for index in (i for i, e in enumerate(main_list) if e == sublist[0]):
-        if main_list[index : index + sublist_len] == sublist:
-            indices.append(index)
-    return indices
+    return [
+        index
+        for index in (i for i, e in enumerate(main_list) if e == sublist[0])
+        if main_list[index : index + sublist_len] == sublist
+    ]
 
 
 def preprocess(
@@ -189,7 +189,7 @@ class SupervisedDataset(Dataset):
         logging.warning(f"Loading data from data path : {data_path}")
         all_json = os.listdir(data_path)
 
-        trajs = list()
+        trajs = []
         for json_file_name in all_json:
             traj = json_to_code_result_tok_temp(json_file_name=json_file_name)
             trajs.append(traj)

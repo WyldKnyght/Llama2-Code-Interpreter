@@ -60,14 +60,8 @@ def extract_all_code_block_gpt(input_str: str) -> str:
 
 def delete_print_asser(code_text: str):
     lines = code_text.split("\n")
-    new_lines = list()
-    for i in lines:
-        if i.strip().startswith("print("):
-            continue
-        new_lines.append(i)
-
-    new_code_text = "\n".join(new_lines)
-    return new_code_text
+    new_lines = [i for i in lines if not i.strip().startswith("print(")]
+    return "\n".join(new_lines)
 
 
 def extract_function_from_code_block(code_block: str) -> str:
@@ -104,41 +98,31 @@ def extract_function_from_code_block(code_block: str) -> str:
 
 
 def get_last_outermost_function_name(function_str):
-    matches = re.findall(r"^def (\w+)", function_str, re.MULTILINE)
-    if matches:
+    if matches := re.findall(r"^def (\w+)", function_str, re.MULTILINE):
         return matches[-1]  # Return the last (outermost) function name
     return ""
 
 
 def get_last_function_name(function_str):
-    # Regular expression to match a function definition
-    matches = re.findall(r"def (\w+)", function_str)
-    if matches:
+    if matches := re.findall(r"def (\w+)", function_str):
         return matches[-1]  # Return the last function name
     return ""
 
 
 def get_outermost_function_name(function_str):
-    matches = re.findall(r"^def (\w+)", function_str, re.MULTILINE)
-    if matches:
+    if matches := re.findall(r"^def (\w+)", function_str, re.MULTILINE):
         return matches[0]  # Return the first (outermost) function name
     return ""
 
 
 def get_function_name(function_str):
-    # Regular expression to match a function definition
-    match = re.search(r"def (\w+)", function_str)
-    if match:
+    if match := re.search(r"def (\w+)", function_str):
         return match.group(0)
     return ""
 
 
 def extract_test_assertion(test_func: str):
-    test_cases = list()
-    for i in test_func.split("\n"):
-        if "assert" in i:
-            test_cases.append(i.strip())
-
+    test_cases = [i.strip() for i in test_func.split("\n") if "assert" in i]
     return ("\n".join(test_cases)).strip()
 
 

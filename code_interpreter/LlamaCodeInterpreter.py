@@ -106,9 +106,7 @@ class LlamaCodeInterpreter(BaseCodeInterpreter):
         print(out)
 
     def dialog_to_prompt(self, dialog: List[Dict]) -> str:
-        full_str = msg_to_code_result_tok_temp(dialog)
-
-        return full_str
+        return msg_to_code_result_tok_temp(dialog)
 
     @torch.inference_mode()
     def generate(
@@ -147,40 +145,29 @@ class LlamaCodeInterpreter(BaseCodeInterpreter):
         )[0]
 
         generated_tokens = output[input_tokens_shape:]
-        generated_text = self.tokenizer.decode(generated_tokens)
-
-        return generated_text
+        return self.tokenizer.decode(generated_tokens)
 
     def extract_code_blocks(self, prompt: str) -> Tuple[bool, str]:
-        pattern = re.escape(B_CODE) + r"(.*?)" + re.escape(E_CODE)
-        matches = re.findall(pattern, prompt, re.DOTALL)
-
-        if matches:
+        pattern = f"{re.escape(B_CODE)}(.*?){re.escape(E_CODE)}"
+        if matches := re.findall(pattern, prompt, re.DOTALL):
             # Return the last matched code block
             return True, matches[-1].strip()
         else:
             return False, ""
 
     def clean_code_output(self, output: str) -> str:
-        if self.MAX_CODE_OUTPUT_LENGTH < len(output):
-            return (
-                output[: self.MAX_CODE_OUTPUT_LENGTH // 5]
-                + "...(skip)..."
-                + output[-self.MAX_CODE_OUTPUT_LENGTH // 5 :]
-            )
-
-        return output
+        return (
+            f"{output[:self.MAX_CODE_OUTPUT_LENGTH // 5]}...(skip)...{output[-self.MAX_CODE_OUTPUT_LENGTH // 5:]}"
+            if self.MAX_CODE_OUTPUT_LENGTH < len(output)
+            else output
+        )
 
     def chat(self, user_message: str, VERBOSE: bool = False, MAX_TRY=5):
         self.dialog.append({"role": "user", "content": user_message})
         if VERBOSE:
-            print(
-                "###User : " + Fore.BLUE + Style.BRIGHT + user_message + Style.RESET_ALL
-            )
+            print(f"###User : {Fore.BLUE}{Style.BRIGHT}{user_message}{Style.RESET_ALL}")
             print("\n###Assistant : ")
 
-        # setup
-        HAS_CODE = False  # For now
         INST_END_TOK_FLAG = False
         full_generated_text = ""
         prompt = self.dialog_to_prompt(dialog=self.dialog)
@@ -189,6 +176,7 @@ class LlamaCodeInterpreter(BaseCodeInterpreter):
 
         generated_text = self.generate(prompt)
         full_generated_text += generated_text
+        HAS_CODE = False
         HAS_CODE, generated_code_block = self.extract_code_blocks(generated_text)
 
         attempt = 1
@@ -225,9 +213,7 @@ class LlamaCodeInterpreter(BaseCodeInterpreter):
                 print(Fore.GREEN + text_before_first_code_block + Style.RESET_ALL)
                 print(Fore.GREEN + generated_code_block + Style.RESET_ALL)
                 print(
-                    Fore.YELLOW
-                    + f"\n{B_RESULT}\n{code_block_output}\n{E_RESULT}\n"
-                    + Style.RESET_ALL
+                    f"{Fore.YELLOW}\n{B_RESULT}\n{code_block_output}\n{E_RESULT}\n{Style.RESET_ALL}"
                 )
 
             # prompt = f"{prompt} {E_INST}{generated_text}"

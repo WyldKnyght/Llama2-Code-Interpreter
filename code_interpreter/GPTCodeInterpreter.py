@@ -47,12 +47,10 @@ def clean_the_dialog(dialog, question):
     user_qinit_dict = filtered_dialog[0]
     answer_fuse_str = "\n".join([i["content"].strip() for i in filtered_dialog[1::2]])
 
-    final_dialog_dict = [
+    return [
         {"role": "user", "content": user_qinit_dict["content"]},
         {"role": "assistant", "content": answer_fuse_str},
     ]
-
-    return final_dialog_dict
 
 
 class GPTCodeInterpreter(BaseCodeInterpreter):
@@ -76,8 +74,7 @@ class GPTCodeInterpreter(BaseCodeInterpreter):
         ), "The openai_api_key.txt file could not be found. Please make sure it is in the same directory as this script, and that it contains your OpenAI API key."
 
         # load from key file
-        with open("./openai_api_key.txt") as f:
-            OPENAI_API_KEY = f.read()
+        OPENAI_API_KEY = Path("./openai_api_key.txt").read_text()
         openai.api_key = OPENAI_API_KEY
 
         self.nb = JupyterNotebook()
@@ -129,12 +126,10 @@ class GPTCodeInterpreter(BaseCodeInterpreter):
         img_data = None
 
         if VERBOSE:
-            print(
-                "###User : " + Fore.BLUE + Style.BRIGHT + user_message + Style.RESET_ALL
-            )
+            print(f"###User : {Fore.BLUE}{Style.BRIGHT}{user_message}{Style.RESET_ALL}")
             print("\n###Assistant : ")
 
-        for i in range(MAX_TRY):
+        for _ in range(MAX_TRY):
             # GPT response
             self.ChatCompletion()
 
@@ -174,9 +169,7 @@ class GPTCodeInterpreter(BaseCodeInterpreter):
 
                 code_block_output = remove_string(code_block_output)
                 if len(code_block_output) > 500:
-                    code_block_output = (
-                        code_block_output[:200] + "⋯(skip)⋯" + code_block_output[-200:]
-                    )
+                    code_block_output = f"{code_block_output[:200]}⋯(skip)⋯{code_block_output[-200:]}"
                 code_block_output_str = f"\n```RESULT\n{code_block_output}\n```\n"
                 if append_result:
                     gen_final = f"{text_before_first_code_block}{generated_code_blocks[0]}\n```{code_block_output_str}"
@@ -196,17 +189,17 @@ class GPTCodeInterpreter(BaseCodeInterpreter):
                     }
                 )
 
-                if len(feedback_prompt) < 5:
-                    feedback_dict = {
+                feedback_dict = (
+                    {
                         "role": "user",
                         "content": "Keep going. if you think debugging tell me where you got wrong and better code.\nNeed conclusion to question only text (Do not leave result part alone).\nif doesn't need to generated anything then just say <done>",
                     }
-                else:
-                    feedback_dict = {
+                    if len(feedback_prompt) < 5
+                    else {
                         "role": "user",
                         "content": f"{feedback_prompt}",
                     }
-
+                )
                 self.dialog.append(feedback_dict)
 
             else:

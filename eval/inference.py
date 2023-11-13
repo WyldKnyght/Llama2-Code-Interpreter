@@ -185,7 +185,7 @@ def inference(
 
     inputs = tokenizer([prompt], return_tensors="pt")
 
-    generated_text = model.generate(
+    return model.generate(
         **inputs,
         streamer=streamer,
         max_new_tokens=max_new_tokens,
@@ -196,8 +196,6 @@ def inference(
         top_k=top_k,
         repetition_penalty=repetition_penalty,
     )
-
-    return generated_text
 
 
 if __name__ == "__main__":

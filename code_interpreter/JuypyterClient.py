@@ -10,7 +10,7 @@ class JupyterNotebook:
         self.kc = self.km.client()
 
     def clean_output(self, outputs):
-        outputs_only_str = list()
+        outputs_only_str = []
         for i in outputs:
             if type(i) == dict:
                 if "text/plain" in list(i.keys()):

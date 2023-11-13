@@ -264,7 +264,7 @@ You are avaible to use
 """
 
 
-CODE_INTERPRETER_SYSTEM_PROMPT_GPT4 = f"""
+CODE_INTERPRETER_SYSTEM_PROMPT_GPT4 = """
 You are helpful agent that can code.
 
 ### User : Can you show me the distribution of the current 

@@ -4,10 +4,7 @@ SITE_PKG_ERROR_PREFIX = 'File /usr/local/lib/python3.8/'
 
 def get_error_header(traceback_str):
     lines = traceback_str.split('\n')
-    for line in lines:
-        if 'Error:' in line:
-            return line
-    return ''  # Return None if no error message is found
+    return next((line for line in lines if 'Error:' in line), '')
 
 def clean_error_msg(error_str:str =''):
     filtered_error_msg = error_str.__str__().split('An error occurred while executing the following cell')[-1].split("\n------------------\n")[-1]
